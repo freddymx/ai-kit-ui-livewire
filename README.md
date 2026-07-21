@@ -1,0 +1,105 @@
+# ai-kit-ui
+
+**The Livewire chat UI for [ai-kit](https://github.com/solutionforest/ai-kit)** — a drop-in `<livewire:ai-kit.chat />` component with streaming RAG answers, markdown, source citations, and conversation history. **No build step required.**
+
+<p align="center">
+  <img src="art/chat.png" alt="ai-kit chat with citations and history" width="820">
+</p>
+
+## Requirements
+
+- PHP **8.3+**, Laravel **12 or 13**
+- **Livewire 4**
+- `solutionforest/ai-kit-core`
+
+## Install
+
+```bash
+composer require solutionforest/ai-kit-ui
+```
+
+Auto-discovered. Views are publishable if you want to customise them:
+
+```bash
+php artisan vendor:publish --tag=ai-kit-ui-views
+```
+
+## Usage
+
+Drop it into any Blade view:
+
+```blade
+<livewire:ai-kit.chat collection="handbook" />
+```
+
+### Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `collection` | `string` | config default | Knowledge-base slug to search |
+| `agent` | `string` (class) | config agent | Agent class override (must extend `RagAgent`) |
+| `placeholder` | `string` | "Ask a question…" | Input placeholder |
+| `history` | `bool` | `false` | Show the conversation-history sidebar (needs an authenticated user) |
+
+```blade
+<livewire:ai-kit.chat
+    collection="handbook"
+    :agent="\App\Ai\SupportAgent::class"
+    :history="true"
+    placeholder="Ask about the handbook…" />
+```
+
+## Features
+
+- **Streaming** — token-by-token over SSE (route `ai-kit.stream`), controlled by `config('ai-kit.chat.streaming')`, with a non-streamed fallback that runs entirely inside Livewire.
+- **Citations** — every answer shows source chips (document title · chunk · relevance %). Click a chip to expand the **source passage** inline with a relevance meter.
+- **History** — with `:history="true"` and a signed-in user, a sidebar lists past conversations; click to reload, or start a **New chat**. Scoped to the current user.
+- **Empty state** — when the collection is missing or has no embedded content, the component prompts you to create a knowledge base first.
+- **Markdown** — assistant responses render GitHub-flavored markdown (HTML escaped).
+
+<p align="center">
+  <img src="art/citation-popup.png" alt="Citation popup showing the source passage" width="620">
+</p>
+
+## Standalone (non-Filament) page
+
+The component needs Livewire assets + a CSRF meta tag. Minimal host page:
+
+```blade
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @livewireStyles
+</head>
+<body>
+    <livewire:ai-kit.chat collection="handbook" :history="true" />
+    @livewireScripts
+</body>
+</html>
+```
+
+> Conversation **history + token logging require an authenticated user** (the conversation participant). On a public page without auth, chat still works but nothing is persisted.
+
+## Theming
+
+The component ships compiled, scoped CSS using CSS variables — override them in your own stylesheet:
+
+```css
+.ck-root {
+    --ck-accent: #16a34a;      /* buttons, links, active states */
+    --ck-user: #16a34a;        /* user bubble */
+    --ck-radius: 12px;
+    /* --ck-bg, --ck-fg, --ck-muted, --ck-border, --ck-assistant, --ck-user-fg */
+}
+```
+
+Dark mode is handled automatically via `prefers-color-scheme`.
+
+## How streaming works
+
+On send, the component dispatches a browser event; JS opens an `EventSource` to `ai-kit.stream` (`StreamController`), which runs the agent's `stream()` and emits `delta` frames, then a `done` frame carrying the final text + conversation id. The route middleware is configurable via `config('ai-kit.ui.stream_middleware')` (default `['web']`).
+
+## License
+
+MIT © [SolutionForest](https://www.solutionforest.com)
