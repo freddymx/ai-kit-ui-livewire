@@ -6,6 +6,14 @@
   <img src="art/chat.png" alt="ai-kit chat with citations and history" width="820">
 </p>
 
+## Why this package?
+
+You have a knowledge base indexed with [ai-kit-core](https://github.com/solutionforest/ai-kit-core)
+and want to let users chat with it — with streaming answers and clickable source
+citations — without building a chat UI from scratch or setting up a JS build
+pipeline. Drop in one Livewire tag and you're done. It talks to core's
+`ChatService`, so the answers match your CLI, API, and MCP surfaces exactly.
+
 ## Requirements
 
 - PHP **8.3+**, Laravel **12 or 13**
@@ -98,7 +106,26 @@ Dark mode is handled automatically via `prefers-color-scheme`.
 
 ## How streaming works
 
-On send, the component dispatches a browser event; JS opens an `EventSource` to `ai-kit.stream` (`StreamController`), which runs the agent's `stream()` and emits `delta` frames, then a `done` frame carrying the final text + conversation id. The route middleware is configurable via `config('ai-kit.ui.stream_middleware')` (default `['web']`).
+On send, the component dispatches a browser event; JS opens an `EventSource` to `ai-kit.stream` (`StreamController`), which streams the answer and emits `delta` frames, then a `done` frame carrying the final text + conversation id. The route middleware is configurable via `config('ai-kit.ui.stream_middleware')` (default `['web']`).
+
+## Architecture
+
+The component is a thin view over the core `ChatService`. Both the non-streamed
+path and the SSE `StreamController` delegate to
+`SolutionForest\AiKit\Services\ChatService`, so RAG mode (tool/inject),
+conversation persistence, citations, and token usage are handled once in core
+and shared with the CLI, HTTP API, and MCP server.
+
+## The ai-kit suite
+
+| Package | Purpose |
+| --- | --- |
+| [solutionforest/ai-kit-core](https://github.com/solutionforest/ai-kit-core) | Ingestion, retrieval, agents + CLI, HTTP API, MCP |
+| **solutionforest/ai-kit-ui** (this) | Livewire 4 chat component |
+| [solutionforest/ai-kit-filament](https://github.com/solutionforest/ai-kit-filament) | Filament v5 admin panel |
+
+Prefer a headless UI? The same chat is available as an HTTP API or MCP server in
+`ai-kit-core` — no Livewire required.
 
 ## License
 
