@@ -8,10 +8,8 @@ use Illuminate\Support\Str;
 use Laravel\Ai\Models\Conversation;
 use Laravel\Ai\Models\ConversationMessage;
 use Livewire\Component;
-use SolutionForest\AiKit\Agents\RagAgent;
-use SolutionForest\AiKit\AiKit;
 use SolutionForest\AiKit\Models\Collection;
-use SolutionForest\AiKit\Pipeline\ContextInjector;
+use SolutionForest\AiKit\Services\ChatService;
 use Throwable;
 
 /**
@@ -177,30 +175,23 @@ final class Chat extends Component
     }
 
     /**
-     * Non-streamed answer: run the agent and return its text.
+     * Non-streamed answer via the shared ChatService (RAG mode, conversation
+     * persistence, and usage all handled there).
      */
     private function answer(string $prompt): string
     {
         try {
-            $agent = $this->makeAgent();
-            $input = $agent->mode() === 'inject'
-                ? app(ContextInjector::class)->inject($prompt, $this->collection, $agent->tenantId())
-                : $prompt;
+            $result = app(ChatService::class)->ask(
+                $prompt,
+                $this->collection,
+                $this->conversationId,
+                auth()->user(),
+                $this->agent,
+            );
 
-            // Persist the exchange when a user is authenticated (Conversations log).
-            if (($user = auth()->user()) !== null) {
-                $agent = $this->conversationId
-                    ? $agent->continue($this->conversationId, $user)
-                    : $agent->forUser($user);
-            }
+            $this->conversationId = $result->conversationId ?? $this->conversationId;
 
-            $response = $agent->prompt($input);
-
-            if (property_exists($response, 'conversationId') && $response->conversationId !== null) {
-                $this->conversationId = (string) $response->conversationId;
-            }
-
-            return (string) $response->text;
+            return $result->answer;
         } catch (Throwable $e) {
             report($e);
 
@@ -214,11 +205,7 @@ final class Chat extends Component
     private function citationsFor(string $prompt): array
     {
         try {
-            return app(ContextInjector::class)
-                ->retrieve($prompt, $this->collection, app(AiKit::class)->tenant())
-                ->map(fn ($chunk): array => $chunk->toArray()) // includes content for the popup
-                ->values()
-                ->all();
+            return app(ChatService::class)->citationsFor($prompt, $this->collection);
         } catch (Throwable) {
             return [];
         }
@@ -239,18 +226,6 @@ final class Chat extends Component
         }
 
         return ! $collection->chunks()->whereNotNull('embedding')->exists();
-    }
-
-    private function makeAgent(): RagAgent
-    {
-        $class = $this->agent ?? config('ai-kit.agent.class', RagAgent::class);
-        $tenant = app(AiKit::class)->tenant();
-
-        $agent = new $class($this->collection, $tenant);
-
-        return $agent instanceof RagAgent
-            ? $agent
-            : new RagAgent($this->collection, $tenant);
     }
 
     /**
