@@ -24,12 +24,12 @@ pipeline. Drop in one Livewire tag and you're done. It talks to core's
 - PHP **8.3+**, Laravel **12 or 13**
 - **Livewire 4**
 
-> **Depends on [`solutionforest/ai-kit-core`](https://github.com/solutionforest/ai-kit-core)** — the RAG engine (ingestion, retrieval, agents). It is a hard dependency and is installed automatically with this package; you configure your knowledge bases and AI provider there. This package is only the chat UI.
+> **Depends on [`solution-forest/ai-kit-core`](https://github.com/solutionforest/ai-kit-core)** — the RAG engine (ingestion, retrieval, agents). It is a hard dependency and is installed automatically with this package; you configure your knowledge bases and AI provider there. This package is only the chat UI.
 
 ## Install
 
 ```bash
-composer require solutionforest/ai-kit-ui-livewire
+composer require solution-forest/ai-kit-ui-livewire
 ```
 
 Auto-discovered. Views are publishable if you want to customise them:
@@ -135,9 +135,9 @@ and shared with the CLI, HTTP API, and MCP server.
 
 | Package | Purpose |
 | --- | --- |
-| [solutionforest/ai-kit-core](https://github.com/solutionforest/ai-kit-core) | Ingestion, retrieval, agents + CLI, HTTP API, MCP |
-| **solutionforest/ai-kit-ui-livewire** (this) | Livewire 4 chat component |
-| [solutionforest/ai-kit-filament](https://github.com/solutionforest/ai-kit-filament) | Filament v5 admin panel |
+| [solution-forest/ai-kit-core](https://github.com/solutionforest/ai-kit-core) | Ingestion, retrieval, agents + CLI, HTTP API, MCP |
+| **solution-forest/ai-kit-ui-livewire** (this) | Livewire 4 chat component |
+| [solution-forest/ai-kit-filament](https://github.com/solutionforest/ai-kit-filament) | Filament v5 admin panel |
 
 Prefer a headless UI? The same chat is available as an HTTP API or MCP server in
 `ai-kit-core` — no Livewire required.
