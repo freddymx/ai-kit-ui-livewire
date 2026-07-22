@@ -146,10 +146,8 @@ Prefer a headless UI? The same chat is available as an HTTP API or MCP server in
 
 `.github/workflows/tests.yml` runs the suite on a GitHub **release** (and manual
 dispatch) — not on every push. Because this package has a local path dependency
-on `ai-kit-core`, CI clones that sibling repo first, so add a repository secret
-**`GH_PAT`** (a personal access token with `repo` scope) under *Settings → Secrets
-and variables → Actions*. Without it the release workflow fails at the clone step.
-Once `ai-kit-core` is on Packagist, drop the clone step and let Composer resolve it.
+on `ai-kit-core`, CI clones that (public) sibling repo first. Once `ai-kit-core`
+is on Packagist, drop the clone step and let Composer resolve it.
 
 ## License
 
