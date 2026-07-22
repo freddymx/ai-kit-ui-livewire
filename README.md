@@ -1,6 +1,11 @@
-# ai-kit-ui
+# ai-kit-ui-livewire
 
-**The Livewire chat UI for [ai-kit](https://github.com/solutionforest/ai-kit)** — a drop-in `<livewire:ai-kit.chat />` component with streaming RAG answers, markdown, source citations, and conversation history. **No build step required.**
+![PHP](https://img.shields.io/badge/PHP-8.3+-777BB4?logo=php&logoColor=white)
+![Laravel](https://img.shields.io/badge/Laravel-12%20|%2013-FF2D20?logo=laravel&logoColor=white)
+![Livewire](https://img.shields.io/badge/Livewire-4-FB70A9?logo=livewire&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+**The Livewire chat UI for the ai-kit suite** — a drop-in `<livewire:ai-kit.chat />` component with streaming RAG answers, markdown, source citations, and conversation history. **No build step required.**
 
 <p align="center">
   <img src="art/chat.png" alt="ai-kit chat with citations and history" width="820">
@@ -23,7 +28,7 @@ pipeline. Drop in one Livewire tag and you're done. It talks to core's
 ## Install
 
 ```bash
-composer require solutionforest/ai-kit-ui
+composer require solutionforest/ai-kit-ui-livewire
 ```
 
 Auto-discovered. Views are publishable if you want to customise them:
@@ -121,7 +126,7 @@ and shared with the CLI, HTTP API, and MCP server.
 | Package | Purpose |
 | --- | --- |
 | [solutionforest/ai-kit-core](https://github.com/solutionforest/ai-kit-core) | Ingestion, retrieval, agents + CLI, HTTP API, MCP |
-| **solutionforest/ai-kit-ui** (this) | Livewire 4 chat component |
+| **solutionforest/ai-kit-ui-livewire** (this) | Livewire 4 chat component |
 | [solutionforest/ai-kit-filament](https://github.com/solutionforest/ai-kit-filament) | Filament v5 admin panel |
 
 Prefer a headless UI? The same chat is available as an HTTP API or MCP server in

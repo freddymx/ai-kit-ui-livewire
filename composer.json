@@ -1,6 +1,6 @@
 {
-    "name": "solutionforest/ai-kit-ui",
-    "description": "Livewire 3 chat UI for ai-kit: streaming RAG responses, markdown rendering, and source citations. No build step required.",
+    "name": "solutionforest/ai-kit-ui-livewire",
+    "description": "Livewire 4 chat UI for ai-kit: streaming RAG responses, markdown rendering, and source citations. No build step required.",
     "type": "library",
     "license": "MIT",
     "keywords": ["laravel", "livewire", "ai", "rag", "chat"],
