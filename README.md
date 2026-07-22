@@ -23,7 +23,8 @@ pipeline. Drop in one Livewire tag and you're done. It talks to core's
 
 - PHP **8.3+**, Laravel **12 or 13**
 - **Livewire 4**
-- `solutionforest/ai-kit-core`
+
+> **Depends on [`solutionforest/ai-kit-core`](https://github.com/solutionforest/ai-kit-core)** — the RAG engine (ingestion, retrieval, agents). It is a hard dependency and is installed automatically with this package; you configure your knowledge bases and AI provider there. This package is only the chat UI.
 
 ## Install
 
@@ -53,6 +54,7 @@ Drop it into any Blade view:
 | `agent` | `string` (class) | config agent | Agent class override (must extend `RagAgent`) |
 | `placeholder` | `string` | "Ask a question…" | Input placeholder |
 | `history` | `bool` | `false` | Show the conversation-history sidebar (needs an authenticated user) |
+| `citations` | `bool` | `config('ai-kit.ui.citations')` (`true`) | Show source citation chips + popups (set `false` to hide, and skip retrieval for them) |
 
 ```blade
 <livewire:ai-kit.chat

@@ -43,17 +43,22 @@ final class Chat extends Component
     /** Show a conversation-history sidebar (requires an authenticated user). */
     public bool $history = false;
 
+    /** Show source citation chips + popups under assistant answers. */
+    public bool $citations = true;
+
     public function mount(
         ?string $collection = null,
         ?string $agent = null,
         ?string $placeholder = null,
         bool $history = false,
+        ?bool $citations = null,
     ): void {
         $this->collection = $collection ?? config('ai-kit.default_collection', 'default');
         $this->agent = $agent;
         $this->placeholder = $placeholder ?? $this->placeholder;
         $this->streaming = (bool) config('ai-kit.chat.streaming', true);
         $this->history = $history;
+        $this->citations = $citations ?? (bool) config('ai-kit.ui.citations', true);
     }
 
     /**
@@ -140,8 +145,9 @@ final class Chat extends Component
         $this->messages[] = $this->message('user', $prompt);
 
         // Citations are resolved from the retriever for the user's question so
-        // they render in both tool and inject modes.
-        $citations = $this->citationsFor($prompt);
+        // they render in both tool and inject modes. Skipped (and not retrieved)
+        // when disabled.
+        $citations = $this->citations ? $this->citationsFor($prompt) : [];
 
         $assistantIndex = count($this->messages);
         $this->messages[] = $this->message('assistant', '', $citations, pending: true);

@@ -49,6 +49,22 @@ it('sends a message and appends a non-streamed assistant reply with citations', 
     RagAgent::assertPrompted('How long do refunds take?');
 });
 
+it('omits citations when the citations prop is disabled', function (): void {
+    seedCollection('kb');
+    config()->set('ai-kit.mode', 'tool');
+    RagAgent::fake(['Refunds are processed within fourteen days.']);
+
+    $component = Livewire::test(Chat::class, ['collection' => 'kb', 'citations' => false])
+        ->assertSet('citations', false)
+        ->set('draft', 'How long do refunds take?')
+        ->call('send');
+
+    $messages = $component->get('messages');
+
+    expect($messages[1]['content'])->toContain('fourteen days')
+        ->and($messages[1]['citations'])->toBe([]);
+});
+
 it('ignores an empty draft', function (): void {
     Livewire::test(Chat::class)
         ->set('draft', '   ')
