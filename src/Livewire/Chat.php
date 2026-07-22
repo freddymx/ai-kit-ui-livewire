@@ -50,14 +50,16 @@ final class Chat extends Component
         ?string $collection = null,
         ?string $agent = null,
         ?string $placeholder = null,
-        bool $history = false,
+        ?bool $history = null,
         ?bool $citations = null,
+        ?bool $streaming = null,
     ): void {
+        // Each prop falls back to an app-wide config default when not passed.
         $this->collection = $collection ?? config('ai-kit.default_collection', 'default');
         $this->agent = $agent;
         $this->placeholder = $placeholder ?? $this->placeholder;
-        $this->streaming = (bool) config('ai-kit.chat.streaming', true);
-        $this->history = $history;
+        $this->streaming = $streaming ?? (bool) config('ai-kit.chat.streaming', true);
+        $this->history = $history ?? (bool) config('ai-kit.ui.history', false);
         $this->citations = $citations ?? (bool) config('ai-kit.ui.citations', true);
     }
 

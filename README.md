@@ -53,8 +53,16 @@ Drop it into any Blade view:
 | `collection` | `string` | config default | Knowledge-base slug to search |
 | `agent` | `string` (class) | config agent | Agent class override (must extend `RagAgent`) |
 | `placeholder` | `string` | "Ask a question…" | Input placeholder |
-| `history` | `bool` | `false` | Show the conversation-history sidebar (needs an authenticated user) |
+| `history` | `bool` | `config('ai-kit.ui.history')` (`false`) | Show the conversation-history sidebar (needs an authenticated user) |
 | `citations` | `bool` | `config('ai-kit.ui.citations')` (`true`) | Show source citation chips + popups (set `false` to hide, and skip retrieval for them) |
+| `streaming` | `bool` | `config('ai-kit.chat.streaming')` (`true`) | Stream the answer token-by-token over SSE (else non-streamed) |
+
+Every boolean prop falls back to its config default when omitted, so you can set
+an app-wide default in `config/ai-kit.php` and override per instance:
+
+```blade
+<livewire:ai-kit.chat collection="handbook" :citations="false" :streaming="false" />
+```
 
 ```blade
 <livewire:ai-kit.chat
@@ -133,6 +141,15 @@ and shared with the CLI, HTTP API, and MCP server.
 
 Prefer a headless UI? The same chat is available as an HTTP API or MCP server in
 `ai-kit-core` — no Livewire required.
+
+## Continuous integration
+
+`.github/workflows/tests.yml` runs the suite on a GitHub **release** (and manual
+dispatch) — not on every push. Because this package has a local path dependency
+on `ai-kit-core`, CI clones that sibling repo first, so add a repository secret
+**`GH_PAT`** (a personal access token with `repo` scope) under *Settings → Secrets
+and variables → Actions*. Without it the release workflow fails at the clone step.
+Once `ai-kit-core` is on Packagist, drop the clone step and let Composer resolve it.
 
 ## License
 
