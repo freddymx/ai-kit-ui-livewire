@@ -1,6 +1,6 @@
 # ai-kit-ui-livewire
 
-![PHP](https://img.shields.io/badge/PHP-8.3+-777BB4?logo=php&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.5+-777BB4?logo=php&logoColor=white)
 ![Laravel](https://img.shields.io/badge/Laravel-12%20|%2013-FF2D20?logo=laravel&logoColor=white)
 ![Livewire](https://img.shields.io/badge/Livewire-4-FB70A9?logo=livewire&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -21,7 +21,7 @@ pipeline. Drop in one Livewire tag and you're done. It talks to core's
 
 ## Requirements
 
-- PHP **8.3+**, Laravel **12 or 13**
+- PHP **8.5+**, Laravel **12 or 13**
 - **Livewire 4**
 
 > **Depends on [`solution-forest/ai-kit-core`](https://github.com/solutionforest/ai-kit-core)** — the RAG engine (ingestion, retrieval, agents). It is a hard dependency and is installed automatically with this package; you configure your knowledge bases and AI provider there. This package is only the chat UI.

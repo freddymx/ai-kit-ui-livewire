@@ -78,7 +78,8 @@ final class Chat extends Component
         }
 
         return Conversation::query()
-            ->where('user_id', $user->getAuthIdentifier())
+            ->where('participant_type', Conversation::participantType($user))
+            ->where('participant_id', Conversation::participantKey($user))
             ->latest('updated_at')
             ->limit(50)
             ->get(['id', 'title', 'updated_at'])
@@ -104,7 +105,8 @@ final class Chat extends Component
 
         $owns = Conversation::query()
             ->whereKey($id)
-            ->where('user_id', $user->getAuthIdentifier())
+            ->where('participant_type', Conversation::participantType($user))
+            ->where('participant_id', Conversation::participantKey($user))
             ->exists();
 
         if (! $owns) {

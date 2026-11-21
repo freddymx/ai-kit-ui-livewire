@@ -10,6 +10,7 @@ use SolutionForest\AiKit\AiKitServiceProvider;
 use SolutionForest\AiKit\Contracts\Embedder;
 use SolutionForest\AiKit\Ui\AiKitUiServiceProvider;
 use SolutionForest\AiKit\Ui\Tests\Support\FakeEmbedder;
+use SolutionForest\AiKit\Ui\Tests\Support\User;
 
 abstract class TestCase extends Orchestra
 {
@@ -40,11 +41,15 @@ abstract class TestCase extends Orchestra
         $app['config']->set('ai-kit.embeddings.cache', false);
         $app['config']->set('ai-kit.chat.streaming', false);
 
+        $app['config']->set('auth.providers.users.model', User::class);
+
         $app->singleton(Embedder::class, fn (): Embedder => new FakeEmbedder());
     }
 
     protected function defineDatabaseMigrations(): void
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../../core/database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../../ai-kit-core/database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../vendor/laravel/ai/database/migrations');
     }
 }

@@ -1,6 +1,6 @@
 # Runs the test suite when a new version is released (not on every push).
 #
-# This package has a local path dependency on ai-kit-core (../core), so CI clones
+# This package has a local path dependency on ai-kit-core (../ai-kit-core), so CI clones
 # it as a sibling first. Once ai-kit-core is on Packagist, drop the clone step and
 # let Composer resolve it normally.
 name: tests
@@ -20,13 +20,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.3', '8.4']
+        php: ['8.5']
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Clone ai-kit-core (path dependency at ../core)
-        run: git clone --depth=1 https://github.com/solutionforest/ai-kit-core.git ../core
+      - name: Clone ai-kit-core (path dependency at ../ai-kit-core)
+        run: git clone --depth=1 https://github.com/solutionforest/ai-kit-core.git ../ai-kit-core
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
