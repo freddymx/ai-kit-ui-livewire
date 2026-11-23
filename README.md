@@ -46,10 +46,10 @@ Up to 0.2 this package was `solution-forest/ai-kit-ui-livewire`; from 0.3 it is
 
 ```bash
 composer remove solution-forest/ai-kit-ui-livewire
-composer require freddymx/ai-kit-ui-livewire:^0.3
+composer require freddymx/ai-kit-ui-livewire:^0.4
 ```
 
-Its dependency on core now points to `freddymx/ai-kit-core:^0.3`. The old
+Its dependency on core now points to `freddymx/ai-kit-core:^0.4`. The old
 `solution-forest/*` packages remain on Packagist at v0.2.x.
 
 ## Usage
