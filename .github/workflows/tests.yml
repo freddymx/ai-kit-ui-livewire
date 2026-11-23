@@ -1,8 +1,8 @@
 # Runs the test suite when a new version is released (not on every push).
 #
-# This package has a local path dependency on ai-kit-core (../ai-kit-core), so CI clones
-# it as a sibling first. Once ai-kit-core is on Packagist, drop the clone step and
-# let Composer resolve it normally.
+# composer.json declares a local path repository for ai-kit-core (../ai-kit-core) so
+# cross-package changes can be tested together; CI clones that sibling first. The
+# package itself is published on Packagist as freddymx/ai-kit-ui-livewire.
 name: tests
 
 on:
@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Clone ai-kit-core (path dependency at ../ai-kit-core)
-        run: git clone --depth=1 https://github.com/solutionforest/ai-kit-core.git ../ai-kit-core
+        run: git clone --depth=1 https://github.com/freddymx/ai-kit-core.git ../ai-kit-core
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2

@@ -13,7 +13,7 @@
 
 ## Why this package?
 
-You have a knowledge base indexed with [ai-kit-core](https://github.com/solutionforest/ai-kit-core)
+You have a knowledge base indexed with [ai-kit-core](https://github.com/freddymx/ai-kit-core)
 and want to let users chat with it — with streaming answers and clickable source
 citations — without building a chat UI from scratch or setting up a JS build
 pipeline. Drop in one Livewire tag and you're done. It talks to core's
@@ -24,12 +24,12 @@ pipeline. Drop in one Livewire tag and you're done. It talks to core's
 - PHP **8.5+**, Laravel **12 or 13**
 - **Livewire 4**
 
-> **Depends on [`solution-forest/ai-kit-core`](https://github.com/solutionforest/ai-kit-core)** — the RAG engine (ingestion, retrieval, agents). It is a hard dependency and is installed automatically with this package; you configure your knowledge bases and AI provider there. This package is only the chat UI.
+> **Depends on [`freddymx/ai-kit-core`](https://github.com/freddymx/ai-kit-core)** — the RAG engine (ingestion, retrieval, agents). It is a hard dependency and is installed automatically with this package; you configure your knowledge bases and AI provider there. This package is only the chat UI.
 
 ## Install
 
 ```bash
-composer require solution-forest/ai-kit-ui-livewire
+composer require freddymx/ai-kit-ui-livewire
 ```
 
 Auto-discovered. Views are publishable if you want to customise them:
@@ -37,6 +37,20 @@ Auto-discovered. Views are publishable if you want to customise them:
 ```bash
 php artisan vendor:publish --tag=ai-kit-ui-views
 ```
+
+## Migrating from `solution-forest/ai-kit-ui-livewire`
+
+Up to 0.2 this package was `solution-forest/ai-kit-ui-livewire`; from 0.3 it is
+`freddymx/ai-kit-ui-livewire`. The PHP namespace `SolutionForest\AiKit\` and the
+`<livewire:ai-kit.chat />` tag are unchanged.
+
+```bash
+composer remove solution-forest/ai-kit-ui-livewire
+composer require freddymx/ai-kit-ui-livewire:^0.3
+```
+
+Its dependency on core now points to `freddymx/ai-kit-core:^0.3`. The old
+`solution-forest/*` packages remain on Packagist at v0.2.x.
 
 ## Usage
 
@@ -135,9 +149,9 @@ and shared with the CLI, HTTP API, and MCP server.
 
 | Package | Purpose |
 | --- | --- |
-| [solution-forest/ai-kit-core](https://github.com/solutionforest/ai-kit-core) | Ingestion, retrieval, agents + CLI, HTTP API, MCP |
-| **solution-forest/ai-kit-ui-livewire** (this) | Livewire 4 chat component |
-| [solution-forest/ai-kit-filament](https://github.com/solutionforest/ai-kit-filament) | Filament v5 admin panel |
+| [freddymx/ai-kit-core](https://github.com/freddymx/ai-kit-core) | Ingestion, retrieval, agents + CLI, HTTP API, MCP |
+| **freddymx/ai-kit-ui-livewire** (this) | Livewire 4 chat component |
+| [freddymx/ai-kit-filament](https://github.com/freddymx/ai-kit-filament) | Filament v5 admin panel |
 
 Prefer a headless UI? The same chat is available as an HTTP API or MCP server in
 `ai-kit-core` — no Livewire required.
@@ -151,21 +165,24 @@ aliased to `0.3.x-dev`. Upgrade core (and Filament, if you use it) in lockstep.
 The Laravel AI SDK v1 schema dropped the `user_id` column, so conversation
 history is now scoped by `participant_type` / `participant_id`. On an existing
 app, publish and run core's AI SDK backfill migration before deploying — see the
-[core upgrade notes](https://github.com/solutionforest/ai-kit-core#upgrading-from-ai-kit-02-ai-sdk-0x--1x).
+[core upgrade notes](https://github.com/freddymx/ai-kit-core#upgrading-from-ai-kit-02-ai-sdk-0x--1x).
 Nothing else in this package's public API changed: the `<livewire:ai-kit.chat />`
 tag, its props, streaming and citations behave the same.
 
 ## Continuous integration
 
 `.github/workflows/tests.yml` runs the suite on a GitHub **release** (and manual
-dispatch) — not on every push. Because this package has a local path dependency
-on `ai-kit-core`, CI clones that (public) sibling repo first. Once `ai-kit-core`
-is on Packagist, drop the clone step and let Composer resolve it.
+dispatch) — not on every push. `composer.json` declares a local **path**
+repository at `../ai-kit-core` so cross-package changes can be tested together,
+so CI clones that sibling first. The package itself is published on Packagist as
+`freddymx/ai-kit-ui-livewire`; the clone step is only about the local path repo
+and can be dropped together with it if you stop developing both side by side.
 
 ## Author
 
-Created and maintained by **Alfredo Pineda** (<freddy@canariasnetworks.com>),
-published under the [SolutionForest](https://www.solutionforest.com) organization.
+Created and maintained by **Alfredo Pineda** (<freddy@canariasnetworks.com>).
+Originally published under the [SolutionForest](https://www.solutionforest.com)
+organization; from 0.3 on, published in the `freddymx` Packagist namespace.
 
 ## License
 
