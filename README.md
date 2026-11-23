@@ -142,6 +142,19 @@ and shared with the CLI, HTTP API, and MCP server.
 Prefer a headless UI? The same chat is available as an HTTP API or MCP server in
 `ai-kit-core` — no Livewire required.
 
+## Upgrading from ai-kit 0.2
+
+This package is part of the **0.3 breaking release** of the ai-kit suite: PHP
+**8.5+**, Livewire **^4.4**, Pest **5**, `ai-kit-core` at `^0.3`, and `dev-main`
+aliased to `0.3.x-dev`. Upgrade core (and Filament, if you use it) in lockstep.
+
+The Laravel AI SDK v1 schema dropped the `user_id` column, so conversation
+history is now scoped by `participant_type` / `participant_id`. On an existing
+app, publish and run core's AI SDK backfill migration before deploying — see the
+[core upgrade notes](https://github.com/solutionforest/ai-kit-core#upgrading-from-ai-kit-02-ai-sdk-0x--1x).
+Nothing else in this package's public API changed: the `<livewire:ai-kit.chat />`
+tag, its props, streaming and citations behave the same.
+
 ## Continuous integration
 
 `.github/workflows/tests.yml` runs the suite on a GitHub **release** (and manual
@@ -149,6 +162,11 @@ dispatch) — not on every push. Because this package has a local path dependenc
 on `ai-kit-core`, CI clones that (public) sibling repo first. Once `ai-kit-core`
 is on Packagist, drop the clone step and let Composer resolve it.
 
+## Author
+
+Created and maintained by **Alfredo Pineda** (<freddy@canariasnetworks.com>),
+published under the [SolutionForest](https://www.solutionforest.com) organization.
+
 ## License
 
-MIT © [SolutionForest](https://www.solutionforest.com)
+MIT © [SolutionForest](https://www.solutionforest.com), Alfredo Pineda

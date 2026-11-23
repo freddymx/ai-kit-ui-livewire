@@ -3,6 +3,13 @@
     "description": "Livewire 4 chat UI for ai-kit: streaming RAG responses, markdown rendering, and source citations. No build step required.",
     "type": "library",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Alfredo Pineda",
+            "email": "freddy@canariasnetworks.com",
+            "role": "Developer"
+        }
+    ],
     "keywords": ["laravel", "livewire", "ai", "rag", "chat"],
     "require": {
         "php": "^8.5",
