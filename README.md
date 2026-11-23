@@ -24,7 +24,7 @@ pipeline. Drop in one Livewire tag and you're done. It talks to core's
 - PHP **8.5+**, Laravel **12 or 13**
 - **Livewire 4**
 
-> **Depends on [`freddymx/ai-kit-core`](https://github.com/freddymx/ai-kit-core)** — the RAG engine (ingestion, retrieval, agents). It is a hard dependency and is installed automatically with this package; you configure your knowledge bases and AI provider there. This package is only the chat UI.
+> **Depends on [`freddymx/ai-kit-core`](https://github.com/freddymx/ai-kit-core)** — the RAG engine (ingestion, retrieval, agents). It is a hard dependency and is installed automatically with this package; you configure your knowledge bases and AI provider there. This package is only the chat UI. Local models (Ollama, LM Studio, vLLM, llama.cpp) are configured in core via `AI_KIT_LOCAL_*` or from the **AI Settings** page of `ai-kit-filament`; the component picks up whichever provider is active automatically.
 
 ## Install
 
