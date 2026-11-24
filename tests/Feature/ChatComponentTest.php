@@ -82,3 +82,9 @@ it('dispatches a stream event instead of answering inline when streaming is on',
         ->assertDispatched('ai-kit:stream')
         ->assertCount('messages', 2);
 });
+
+it('pins chat text to the left so host page styles cannot center the bubbles', function (): void {
+    Livewire::test(Chat::class)
+        ->assertSee('font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;text-align:left}', false)
+        ->assertSee('.ck-bubble{padding:10px 14px;border-radius:var(--ck-radius);line-height:1.55;font-size:.95rem;text-align:left;', false);
+});
