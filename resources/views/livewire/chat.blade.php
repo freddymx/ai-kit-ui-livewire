@@ -23,6 +23,9 @@
             .ck-bubble{padding:10px 14px;border-radius:var(--ck-radius);line-height:1.55;font-size:.95rem;text-align:left!important;word-wrap:break-word;overflow-wrap:anywhere}
             .ck-msg-user .ck-bubble{background:var(--ck-user);color:var(--ck-user-fg);border-bottom-right-radius:4px}
             .ck-msg-assistant .ck-bubble{background:var(--ck-assistant);border-bottom-left-radius:4px}
+            /* Markdown children need their own declaration: a host rule on
+               p/li would beat the inherited text-align of .ck-bubble. */
+            .ck-bubble p,.ck-bubble ul,.ck-bubble ol,.ck-bubble li,.ck-bubble h1,.ck-bubble h2,.ck-bubble h3,.ck-bubble h4,.ck-bubble h5,.ck-bubble h6,.ck-bubble blockquote,.ck-bubble table,.ck-bubble th,.ck-bubble td,.ck-bubble pre,.ck-bubble code{text-align:left!important}
             .ck-bubble p{margin:0 0 .5em}.ck-bubble p:last-child{margin-bottom:0}
             .ck-bubble pre{background:#0f172a;color:#e2e8f0;padding:10px;border-radius:8px;overflow-x:auto;font-size:.85em}
             .ck-bubble code{font-family:ui-monospace,monospace;font-size:.9em}

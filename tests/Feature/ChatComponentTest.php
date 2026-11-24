@@ -89,5 +89,7 @@ it('pins chat text to the left so host page styles cannot center the bubbles', f
         ->assertSee('.ck-bubble{padding:10px 14px;border-radius:var(--ck-radius);line-height:1.55;font-size:.95rem;text-align:left!important;', false)
         ->assertSee('.ck-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;align-items:stretch;gap:14px}', false)
         ->assertSee('.ck-msg-assistant{align-self:flex-start;align-items:flex-start;margin-right:auto}', false)
-        ->assertSee('.ck-msg-user{align-self:flex-end;align-items:flex-end;margin-left:auto}', false);
+        ->assertSee('.ck-msg-user{align-self:flex-end;align-items:flex-end;margin-left:auto}', false)
+        ->assertSee('.ck-bubble p,.ck-bubble ul,.ck-bubble ol,.ck-bubble li,', false)
+        ->assertSee('.ck-bubble code{text-align:left!important}', false);
 });
