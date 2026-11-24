@@ -3,7 +3,7 @@
 <div class="ck-root {{ $history ? 'ck-root-history' : '' }}" wire:key="ck-chat-root">
     @once
         <style>
-            .ck-root{--ck-bg:#ffffff;--ck-fg:#111827;--ck-muted:#6b7280;--ck-border:#e5e7eb;--ck-user:#2563eb;--ck-user-fg:#ffffff;--ck-assistant:#f3f4f6;--ck-accent:#2563eb;--ck-radius:14px;display:flex;gap:12px;height:100%;min-height:420px;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;text-align:left}
+            .ck-root{--ck-bg:#ffffff;--ck-fg:#111827;--ck-muted:#6b7280;--ck-border:#e5e7eb;--ck-user:#2563eb;--ck-user-fg:#ffffff;--ck-assistant:#f3f4f6;--ck-accent:#2563eb;--ck-radius:14px;display:flex;gap:12px;height:100%;min-height:420px;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;text-align:left!important}
             .ck-root *{box-sizing:border-box}
             .ck-history{width:240px;flex:0 0 240px;display:flex;flex-direction:column;gap:8px;background:var(--ck-bg);color:var(--ck-fg);border:1px solid var(--ck-border);border-radius:var(--ck-radius);padding:10px;overflow:hidden}
             .ck-history-new{border:1px solid var(--ck-accent);background:var(--ck-accent);color:#fff;border-radius:10px;padding:8px 10px;font:inherit;font-size:.85rem;font-weight:600;cursor:pointer}
@@ -15,12 +15,12 @@
             .ck-history-when{font-size:.68rem;color:var(--ck-muted)}
             .ck-history-empty{color:var(--ck-muted);font-size:.8rem;padding:8px}
             .ck-chat{flex:1;min-width:0;display:flex;flex-direction:column;height:100%;min-height:420px;background:var(--ck-bg);color:var(--ck-fg);border:1px solid var(--ck-border);border-radius:var(--ck-radius);overflow:hidden}
-            .ck-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+            .ck-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;align-items:stretch;gap:14px}
             .ck-empty{margin:auto;color:var(--ck-muted);text-align:center;font-size:.95rem;max-width:28ch}
             .ck-msg{display:flex;flex-direction:column;gap:6px;max-width:82%}
-            .ck-msg-user{align-self:flex-end;align-items:flex-end}
-            .ck-msg-assistant{align-self:flex-start;align-items:flex-start}
-            .ck-bubble{padding:10px 14px;border-radius:var(--ck-radius);line-height:1.55;font-size:.95rem;text-align:left;word-wrap:break-word;overflow-wrap:anywhere}
+            .ck-msg-user{align-self:flex-end;align-items:flex-end;margin-left:auto}
+            .ck-msg-assistant{align-self:flex-start;align-items:flex-start;margin-right:auto}
+            .ck-bubble{padding:10px 14px;border-radius:var(--ck-radius);line-height:1.55;font-size:.95rem;text-align:left!important;word-wrap:break-word;overflow-wrap:anywhere}
             .ck-msg-user .ck-bubble{background:var(--ck-user);color:var(--ck-user-fg);border-bottom-right-radius:4px}
             .ck-msg-assistant .ck-bubble{background:var(--ck-assistant);border-bottom-left-radius:4px}
             .ck-bubble p{margin:0 0 .5em}.ck-bubble p:last-child{margin-bottom:0}
