@@ -55,35 +55,6 @@
             @media (max-width:640px){.ck-root-history{flex-direction:column}.ck-history{width:auto;flex:0 0 auto;max-height:160px}}
             @media (prefers-color-scheme:dark){.ck-root{--ck-bg:#0b0f19;--ck-fg:#e5e7eb;--ck-muted:#9ca3af;--ck-border:#1f2937;--ck-assistant:#1f2937}}
 
-            /* Header — Ethereal Glass double-bezel island. The outer tray is
-               machined, the inner core floats. Only transform/opacity animate;
-               no blur on scrolling content. */
-            .ck-root{--ck-header-tint:#f6f8fc;--ck-header-text:#0b1220;--ck-header-hair:rgba(11,18,32,.07);--ck-header-glow:rgba(37,99,235,.10);--ck-header-ring:rgba(37,99,235,.36);--ck-header-status:#10b981}
-            @media (prefers-color-scheme:dark){.ck-root{--ck-header-tint:#0e1424;--ck-header-text:#e8edf7;--ck-header-hair:rgba(255,255,255,.08);--ck-header-glow:rgba(99,102,241,.16);--ck-header-ring:rgba(129,140,248,.42);--ck-header-status:#34d399}}
-            .ck-header-shell{position:relative;isolation:isolate;flex:0 0 auto;margin:12px 12px 0;padding:6px;border-radius:20px;background:linear-gradient(135deg,var(--ck-header-glow),var(--ck-header-tint) 42%,var(--ck-header-tint));box-shadow:inset 0 0 0 1px var(--ck-header-hair);animation:ck-header-in .8s cubic-bezier(.32,.72,0,1) both}
-            .ck-header-shell::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(120% 180% at 12% -30%,var(--ck-header-glow),transparent 64%);transform:translateZ(0);animation:ck-header-halo 9s cubic-bezier(.32,.72,0,1) infinite alternate}
-            @keyframes ck-header-in{from{opacity:0;transform:translateY(-10px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
-            @keyframes ck-header-halo{from{opacity:.5;transform:translate3d(0,0,0) scale(1)}to{opacity:1;transform:translate3d(2%,1%,0) scale(1.05)}}
-            .ck-header{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 16px;border-radius:14px;background:var(--ck-bg);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 18px 40px -24px rgba(15,23,42,.28)}
-            .ck-header-identity{min-width:0;display:flex;flex-direction:column;gap:4px;animation:ck-header-rise .8s cubic-bezier(.32,.72,0,1) .08s both}
-            .ck-header-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto;animation:ck-header-rise .8s cubic-bezier(.32,.72,0,1) .16s both}
-            @keyframes ck-header-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-            .ck-header-eyebrow{display:inline-flex;align-items:center;gap:6px;width:max-content;max-width:100%;padding:3px 9px;border-radius:999px;background:var(--ck-header-tint);box-shadow:inset 0 0 0 1px var(--ck-header-hair);color:var(--ck-muted);font-size:.62rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase}
-            .ck-header-eyebrow-dot{width:5px;height:5px;border-radius:50%;background:var(--ck-accent);box-shadow:0 0 0 3px var(--ck-header-glow)}
-            .ck-header-title{margin:0;font-family:"Geist","Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;font-size:1.06rem;font-weight:600;letter-spacing:-.035em;line-height:1.15;color:var(--ck-header-text);text-wrap:balance}
-            .ck-header-sub{margin:0;font-size:.72rem;color:var(--ck-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-            .ck-header-status{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--ck-header-tint);box-shadow:inset 0 0 0 1px var(--ck-header-hair);font-size:.68rem;font-weight:600;color:var(--ck-muted)}
-            .ck-header-status-dot{position:relative;width:6px;height:6px;border-radius:50%;background:var(--ck-header-status)}
-            .ck-header-status-dot::after{content:"";position:absolute;inset:-3px;border-radius:inherit;border:1px solid var(--ck-header-ring);opacity:0;animation:ck-status-ring 2.6s cubic-bezier(.32,.72,0,1) infinite}
-            @keyframes ck-status-ring{0%{transform:scale(.6);opacity:.7}70%,100%{transform:scale(1.8);opacity:0}}
-            .ck-header-new{display:inline-flex;align-items:center;gap:8px;padding:5px 5px 5px 14px;border:0;border-radius:999px;background:var(--ck-accent);color:#fff;font:inherit;font-size:.74rem;font-weight:600;cursor:pointer;transition:transform .5s cubic-bezier(.32,.72,0,1),box-shadow .5s cubic-bezier(.32,.72,0,1)}
-            .ck-header-new:hover{transform:translateY(-2px);box-shadow:0 14px 28px -14px var(--ck-accent)}
-            .ck-header-new:active{transform:scale(.96)}
-            .ck-header-new-icon{width:26px;height:26px;border-radius:999px;background:rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;transition:transform .55s cubic-bezier(.32,.72,0,1)}
-            .ck-header-new:hover .ck-header-new-icon{transform:translate(2px,-2px) scale(1.06) rotate(-8deg)}
-            .ck-header-new-icon svg{width:14px;height:14px}
-            @media (max-width:768px){.ck-header-shell{margin:8px 8px 0;padding:5px;border-radius:16px}.ck-header{gap:10px;padding:10px 12px;border-radius:11px}.ck-header-eyebrow{letter-spacing:.12em;font-size:.56rem}.ck-header-title{font-size:.94rem}.ck-header-sub{display:none}.ck-header-new-label{display:none}.ck-header-new{padding:5px}.ck-header-status{padding:5px 8px}}
-            @media (prefers-reduced-motion:reduce){.ck-header-shell,.ck-header-shell::before,.ck-header-identity,.ck-header-actions,.ck-header-status-dot::after{animation:none!important}.ck-header-new,.ck-header-new-icon{transition:none!important}}
         </style>
     @endonce
 
@@ -106,31 +77,6 @@
     @endif
 
     <div class="ck-chat">
-        <div class="ck-header-shell">
-            <header class="ck-header">
-                <div class="ck-header-identity">
-                    <span class="ck-header-eyebrow"><span class="ck-header-eyebrow-dot"></span> AI Kit · Grounded</span>
-                    <h2 class="ck-header-title">Knowledge assistant</h2>
-                    <p class="ck-header-sub">{{ $collection ?: config('ai-kit.default_collection', 'default') }} · sources cited</p>
-                </div>
-                <div class="ck-header-actions">
-                    <span class="ck-header-status" title="Answers are grounded in your knowledge base">
-                        <span class="ck-header-status-dot"></span>
-                        <span>Live</span>
-                    </span>
-                    <button type="button" class="ck-header-new" wire:click="newConversation"
-                            aria-label="Start a new conversation" title="Start a new conversation">
-                        <span class="ck-header-new-label">New chat</span>
-                        <span class="ck-header-new-icon">
-                            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" />
-                            </svg>
-                        </span>
-                    </button>
-                </div>
-            </header>
-        </div>
-
         <div class="ck-messages" x-data x-ref="messages"
              x-init="$nextTick(() => $el.scrollTop = $el.scrollHeight)"
              @ck-scroll.window="$nextTick(() => $refs.messages.scrollTop = $refs.messages.scrollHeight)">

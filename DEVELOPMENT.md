@@ -52,7 +52,7 @@ src/Http/StreamController.php         # SSE: valida request, emite delta/error/d
 src/Support/Markdown.php              # CommonMark -> HTML seguro (html_input => escape)
 src/AiKitUiServiceProvider.php        # loadViewsFrom, loadRoutesFrom, Livewire::component, publishes
 routes/web.php                        # GET ai-kit/stream -> ai-kit.stream
-resources/views/livewire/chat.blade.php # toda la UI: CSS inline (@once) + JS @script + cabecera ck-header-shell/ck-header
+resources/views/livewire/chat.blade.php # toda la UI: CSS inline (@once) + JS @script + historial/New chat
 tests/Feature/ChatComponentTest.php   # render, empty state, send, citations, stream, CSS
 tests/Feature/ConversationHistoryTest.php # scoping por participante, load/new conversation
 tests/TestCase.php, tests/Pest.php    # bootstrap Testbench
@@ -135,7 +135,6 @@ Página Blade mínima (fuera de Filament):
 - **`text-align` en los hijos markdown**: `text-align` se hereda, pero una regla del host sobre `p`/`li` gana por especificidad. Por eso se declara `text-align:left!important` también en `p/ul/ol/li/h1-h6/blockquote/table/th/td/pre/code`.
 - **Historial y token logging requieren usuario autenticado** (el *participant*): `conversationList()` y `loadConversation()` retornan `[]`/early-return sin `auth()->user()`, y filtran por `participant_type` + `participant_id`. En una página pública el chat funciona pero no persiste nada. El listado se limita a 50 conversaciones.
 - Otro gotcha: el route name `ai-kit.stream` se resuelve con `route()` dentro de `@script`; si la app redefine el prefijo de rutas del provider, el JS sigue funcionando porque usa el name (`@js(route(...))`).
-- La cabecera agrega reglas `ck-header-*` **sin tocar las reglas pinneadas** por `ChatComponentTest` (`.ck-root` con `text-align:left!important`, `.ck-bubble`, `.ck-messages`, `.ck-msg-*`). Si se reformatean esas líneas, el test de alineación falla. Solo se animan `transform`/`opacity` con `cubic-bezier(.32,.72,0,1)`; no se usa `backdrop-blur` (el blur queda reservado para overlays) y el collapse es a `768px`, distinto del `640px` del historial.
 
 ## 10. Verificación y publicación
 
