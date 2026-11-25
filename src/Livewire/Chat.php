@@ -10,6 +10,7 @@ use Laravel\Ai\Models\ConversationMessage;
 use Livewire\Component;
 use SolutionForest\AiKit\Models\Collection;
 use SolutionForest\AiKit\Services\ChatService;
+use SolutionForest\AiKit\Services\ConversationService;
 use Throwable;
 
 /**
@@ -124,6 +125,26 @@ final class Chat extends Component
             ->all();
 
         $this->conversationId = $id;
+    }
+
+    /**
+     * Delete one of the current participant's conversations (and its messages).
+     * Deleting the active conversation resets the chat to a fresh state.
+     */
+    public function deleteConversation(string $id): void
+    {
+        $user = auth()->user();
+        if (! $this->history || $user === null) {
+            return;
+        }
+
+        if (! app(ConversationService::class)->deleteForParticipant($id, $user)) {
+            return;
+        }
+
+        if ($this->conversationId === $id) {
+            $this->newConversation();
+        }
     }
 
     /**

@@ -88,3 +88,73 @@ it('loads the messages of a conversation owned by the signed-in participant', fu
         ->and($component->get('messages'))->toHaveCount(1)
         ->and($component->get('messages')[0]['content'])->toContain('Answer for Mine');
 });
+
+it('deletes an owned conversation with its messages and removes it from the list', function (): void {
+    $me = User::create(['name' => 'Me']);
+
+    $mine = seedConversation($me, 'Mine');
+
+    $this->actingAs($me);
+
+    $component = Livewire::test(Chat::class, ['history' => true])
+        ->call('deleteConversation', $mine);
+
+    expect(Conversation::query()->whereKey($mine)->exists())->toBeFalse()
+        ->and(ConversationMessage::query()->where('conversation_id', $mine)->exists())->toBeFalse()
+        ->and($component->instance()->conversationList())->toBe([]);
+});
+
+it('does not delete a conversation owned by another participant', function (): void {
+    $me = User::create(['name' => 'Me']);
+    $other = User::create(['name' => 'Someone else']);
+
+    $theirs = seedConversation($other, 'Theirs');
+
+    $this->actingAs($me);
+
+    Livewire::test(Chat::class, ['history' => true])
+        ->call('deleteConversation', $theirs);
+
+    expect(Conversation::query()->whereKey($theirs)->exists())->toBeTrue()
+        ->and(ConversationMessage::query()->where('conversation_id', $theirs)->exists())->toBeTrue();
+});
+
+it('resets the active conversation when it is deleted', function (): void {
+    $me = User::create(['name' => 'Me']);
+
+    $mine = seedConversation($me, 'Mine');
+
+    $this->actingAs($me);
+
+    $component = Livewire::test(Chat::class, ['history' => true])
+        ->call('loadConversation', $mine)
+        ->set('draft', 'Unsent draft')
+        ->call('deleteConversation', $mine);
+
+    expect($component->get('messages'))->toBe([])
+        ->and($component->get('conversationId'))->toBeNull()
+        ->and($component->get('draft'))->toBe('');
+});
+
+it('does nothing without an authenticated user', function (): void {
+    $me = User::create(['name' => 'Me']);
+
+    $mine = seedConversation($me, 'Mine');
+
+    Livewire::test(Chat::class, ['history' => true])
+        ->call('deleteConversation', $mine);
+
+    expect(Conversation::query()->whereKey($mine)->exists())->toBeTrue();
+});
+
+it('renders the delete button with a confirmation prompt', function (): void {
+    $me = User::create(['name' => 'Me']);
+
+    $mine = seedConversation($me, 'Mine');
+
+    $this->actingAs($me);
+
+    Livewire::test(Chat::class, ['history' => true])
+        ->assertSee('wire:confirm="Delete this conversation?"', false)
+        ->assertSee("wire:click.stop=\"deleteConversation('{$mine}')\"", false);
+});

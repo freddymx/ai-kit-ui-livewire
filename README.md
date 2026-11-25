@@ -92,7 +92,7 @@ an app-wide default in `config/ai-kit.php` and override per instance:
 
 - **Streaming** — token-by-token over SSE (route `ai-kit.stream`), controlled by `config('ai-kit.chat.streaming')`, with a non-streamed fallback that runs entirely inside Livewire.
 - **Citations** — every answer shows source chips (document title · chunk · relevance %). Click a chip to expand the **source passage** inline with a relevance meter.
-- **History** — with `:history="true"` and a signed-in user, a sidebar lists past conversations; click to reload, or start a **New chat**. Scoped to the current user.
+- **History** — with `:history="true"` and a signed-in user, a sidebar lists past conversations; click to reload, or start a **New chat**. Scoped to the current user. Each conversation also has a delete action behind a confirmation prompt: it removes that conversation **and its messages**, and only applies to the authenticated participant (someone else's conversation is never deleted).
 - **Empty state** — when the collection is missing or has no embedded content, the component prompts you to create a knowledge base first.
 - **Markdown** — assistant responses render GitHub-flavored markdown (HTML escaped).
 

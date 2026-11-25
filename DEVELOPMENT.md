@@ -47,14 +47,14 @@ No hay **build step**: no hay que compilar JS ni CSS. Toda la lógica RAG (inges
 
 ```
 composer.json                         # metadata, deps, path repo, branch-alias, provider
-src/Livewire/Chat.php                 # componente: props, send(), stream, historial, citas
+src/Livewire/Chat.php                 # componente: props, send(), stream, historial (load/delete), citas
 src/Http/StreamController.php         # SSE: valida request, emite delta/error/done
 src/Support/Markdown.php              # CommonMark -> HTML seguro (html_input => escape)
 src/AiKitUiServiceProvider.php        # loadViewsFrom, loadRoutesFrom, Livewire::component, publishes
 routes/web.php                        # GET ai-kit/stream -> ai-kit.stream
 resources/views/livewire/chat.blade.php # toda la UI: CSS inline (@once) + JS @script + historial/New chat
 tests/Feature/ChatComponentTest.php   # render, empty state, send, citations, stream, CSS
-tests/Feature/ConversationHistoryTest.php # scoping por participante, load/new conversation
+tests/Feature/ConversationHistoryTest.php # scoping por participante, load/new/delete conversation
 tests/TestCase.php, tests/Pest.php    # bootstrap Testbench
 tests/Support/User.php                # modelo de usuario de test
 tests/database/migrations/...         # tabla users
@@ -62,6 +62,8 @@ tests/database/migrations/...         # tabla users
 ```
 
 Detalle de `Chat.php`: props públicas `collection`, `agent`, `placeholder`, `draft`, `messages`, `conversationId`, `streaming`, `history`, `citations`. `send()` agrega el mensaje del usuario, resuelve citas (si están activas), agrega un mensaje `assistant` con `pending: true` y hace `dispatch('ai-kit:stream', ...)`; el path no-streamed llama a `ChatService::ask()` inline. `completeStream(index, content, conversationId)` cierra el ciclo del stream. La cabecera no agrega props: muestra `$collection` (o el default de config) y su botón **New chat** llama a `newConversation()`, así que funciona incluso con `:history="false"`.
+
+El historial expone además `deleteConversation(string $id)`: hace early-return sin `history` o sin `auth()->user()`, y delega el borrado real al servicio del core `SolutionForest\AiKit\Services\ConversationService::deleteForParticipant($id, $user)`, que verifica propiedad por `participant_type` + `participant_id` y borra la conversación junto con sus mensajes (observer `deleting` registrado por `AiKitServiceProvider`). Si el id borrado era el activo (`conversationId`), llama a `newConversation()` para limpiar `messages`, `conversationId` y `draft`. La UI usa un `<div class="ck-history-row">` con el botón de carga y un botón de borrar separado (no se anidan botones): `wire:confirm` pide la confirmación y `wire:click.stop` evita que el click dispare también `loadConversation`. No hay acción de "borrar todo": el alcance es por conversación.
 
 ## 6. Configuración
 
@@ -110,6 +112,13 @@ php artisan vendor:publish --tag=ai-kit-ui-views
 4. Al terminar emite `event: done` con `{"content": ..., "conversationId": ...}`. El JS cierra el `EventSource` y llama a `$wire.completeStream(index, content || buffer, conversationId)`. En error emite `event: error` y cierra.
 5. Si `streaming` es `false`, no hay SSE: `ChatService::ask()` responde inline dentro de Livewire.
 
+**Cómo funciona el borrado del historial** (acción por conversación, no "clear all"):
+
+1. Cada item del sidebar es un `.ck-history-row` con dos botones hermanos: el `.ck-history-item` existente (`wire:click="loadConversation(...)"`) y el `.ck-history-delete`, que no está anidado para evitar un botón dentro de otro.
+2. El botón de borrar usa `wire:confirm="Delete this conversation?"` para pedir confirmación y `wire:click.stop="deleteConversation('...')"` para que el click NO propague también la carga de la conversación.
+3. `deleteConversation()` valida `history` + usuario autenticado y llama a `ConversationService::deleteForParticipant()` del core (`freddymx/ai-kit-core`, vía path repo symlink). El servicio verifica propiedad y borra conversación + mensajes en una transacción.
+4. Si la conversación borrada estaba activa, `newConversation()` limpia `messages`, `conversationId` y `draft`. El trash SVG es inline (`stroke-width="1.25"`, sin librería de iconos); en mobile (`max-width:640px`) se fuerza `opacity:1` porque no hay hover, y `prefers-reduced-motion` desactiva la transición.
+
 Página Blade mínima (fuera de Filament):
 
 ```blade
@@ -133,7 +142,10 @@ Página Blade mínima (fuera de Filament):
 - **CSS inline + scoped**: todo el estilo vive en `chat.blade.php` con `@once` y prefijo `ck-`. Así no hay dependencias de Tailwind, ni build step, ni colisiones con el CSS del host (los tests verifican los selectores exactos).
 - **Vistas publicadas**: `vendor:publish` copia los archivos a `resources/views/vendor/ai-kit-ui`. Composer **no las actualiza** en un upgrade porque son archivos del usuario. Para tomar cambios del package hay que republicar con `php artisan vendor:publish --tag=ai-kit-ui-views --force` (y revisar diffs propios).
 - **`text-align` en los hijos markdown**: `text-align` se hereda, pero una regla del host sobre `p`/`li` gana por especificidad. Por eso se declara `text-align:left!important` también en `p/ul/ol/li/h1-h6/blockquote/table/th/td/pre/code`.
-- **Historial y token logging requieren usuario autenticado** (el *participant*): `conversationList()` y `loadConversation()` retornan `[]`/early-return sin `auth()->user()`, y filtran por `participant_type` + `participant_id`. En una página pública el chat funciona pero no persiste nada. El listado se limita a 50 conversaciones.
+- **Historial y token logging requieren usuario autenticado** (el *participant*): `conversationList()`, `loadConversation()` y `deleteConversation()` retornan `[]`/early-return sin `auth()->user()`, y filtran por `participant_type` + `participant_id`. En una página pública el chat funciona pero no persiste nada. El listado se limita a 50 conversaciones.
+- **El borrado nunca sale del participant**: la UI sólo ofrece borrar conversaciones listadas para el usuario actual, pero la autoridad real está en `ConversationService::deleteForParticipant()` del core (doble verificación en UI + servicio). Los mensajes se van con la conversación gracias al observer `deleting` del `AiKitServiceProvider`. No existe borrado masivo.
+- **`wire:confirm` + `wire:click.stop`**: la confirmación es del lado browser (Livewire), no una validación de seguridad; la seguridad es el chequeo de propiedad en el servicio. El modificador `.stop` es necesario porque el botón de borrar convive con el botón de carga dentro de la misma fila: sin él, un click de borrado también dispararía `loadConversation()` sobre una conversación que acaba de desaparecer.
+- **Visibilidad del botón de borrar**: `opacity:0` por defecto y aparece en `:hover`/`:focus-visible` de la fila; en `@media (max-width:640px)` se fuerza `opacity:1` porque en touch no hay hover. Con `prefers-reduced-motion:reduce` la transición se desactiva con `transition:none!important`.
 - Otro gotcha: el route name `ai-kit.stream` se resuelve con `route()` dentro de `@script`; si la app redefine el prefijo de rutas del provider, el JS sigue funcionando porque usa el name (`@js(route(...))`).
 
 ## 10. Verificación y publicación

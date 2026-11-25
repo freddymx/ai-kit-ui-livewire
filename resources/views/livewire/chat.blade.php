@@ -8,9 +8,14 @@
             .ck-history{width:240px;flex:0 0 240px;display:flex;flex-direction:column;gap:8px;background:var(--ck-bg);color:var(--ck-fg);border:1px solid var(--ck-border);border-radius:var(--ck-radius);padding:10px;overflow:hidden}
             .ck-history-new{border:1px solid var(--ck-accent);background:var(--ck-accent);color:#fff;border-radius:10px;padding:8px 10px;font:inherit;font-size:.85rem;font-weight:600;cursor:pointer}
             .ck-history-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
-            .ck-history-item{text-align:left;border:0;background:transparent;color:var(--ck-fg);border-radius:8px;padding:8px 9px;cursor:pointer;display:flex;flex-direction:column;gap:2px;width:100%}
+            .ck-history-row{display:flex;align-items:center;gap:2px}
+            .ck-history-item{text-align:left;border:0;background:transparent;color:var(--ck-fg);border-radius:8px;padding:8px 9px;cursor:pointer;display:flex;flex-direction:column;gap:2px;width:100%;flex:1;min-width:0}
             .ck-history-item:hover{background:var(--ck-assistant)}
             .ck-history-item.is-active{background:var(--ck-assistant);outline:1px solid var(--ck-border)}
+            .ck-history-delete{flex:0 0 auto;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border:0;border-radius:8px;background:transparent;color:var(--ck-muted);cursor:pointer;opacity:0;transition:opacity .35s cubic-bezier(.32,.72,0,1),background .35s cubic-bezier(.32,.72,0,1),transform .35s cubic-bezier(.32,.72,0,1)}
+            .ck-history-row:hover .ck-history-delete,.ck-history-delete:focus-visible{opacity:1}
+            .ck-history-delete:hover{background:rgba(220,38,38,.10);color:#dc2626}
+            .ck-history-delete:active{transform:scale(.94)}
             .ck-history-title{font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
             .ck-history-when{font-size:.68rem;color:var(--ck-muted)}
             .ck-history-empty{color:var(--ck-muted);font-size:.8rem;padding:8px}
@@ -52,8 +57,9 @@
             .ck-input:focus{outline:2px solid var(--ck-accent);outline-offset:-1px}
             .ck-send{border:0;background:var(--ck-accent);color:#fff;border-radius:10px;padding:0 18px;font:inherit;font-weight:600;cursor:pointer}
             .ck-send:disabled{opacity:.5;cursor:not-allowed}
-            @media (max-width:640px){.ck-root-history{flex-direction:column}.ck-history{width:auto;flex:0 0 auto;max-height:160px}}
+            @media (max-width:640px){.ck-root-history{flex-direction:column}.ck-history{width:auto;flex:0 0 auto;max-height:160px}.ck-history-delete{opacity:1}}
             @media (prefers-color-scheme:dark){.ck-root{--ck-bg:#0b0f19;--ck-fg:#e5e7eb;--ck-muted:#9ca3af;--ck-border:#1f2937;--ck-assistant:#1f2937}}
+            @media (prefers-reduced-motion:reduce){.ck-history-delete{transition:none!important}}
 
         </style>
     @endonce
@@ -63,12 +69,24 @@
             <button type="button" class="ck-history-new" wire:click="newConversation">+ New chat</button>
             <div class="ck-history-list">
                 @forelse ($this->conversationList() as $c)
-                    <button type="button" wire:key="conv-{{ $c['id'] }}"
-                            class="ck-history-item {{ $conversationId === $c['id'] ? 'is-active' : '' }}"
-                            wire:click="loadConversation('{{ $c['id'] }}')">
-                        <span class="ck-history-title">{{ $c['title'] }}</span>
-                        <span class="ck-history-when">{{ $c['when'] }}</span>
-                    </button>
+                    <div class="ck-history-row">
+                        <button type="button" wire:key="conv-{{ $c['id'] }}"
+                                class="ck-history-item {{ $conversationId === $c['id'] ? 'is-active' : '' }}"
+                                wire:click="loadConversation('{{ $c['id'] }}')">
+                            <span class="ck-history-title">{{ $c['title'] }}</span>
+                            <span class="ck-history-when">{{ $c['when'] }}</span>
+                        </button>
+                        <button type="button" class="ck-history-delete"
+                                wire:confirm="Delete this conversation?"
+                                wire:click.stop="deleteConversation('{{ $c['id'] }}')"
+                                aria-label="Delete conversation" title="Delete conversation">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="1.25" stroke-linecap="round"
+                                 stroke-linejoin="round" aria-hidden="true">
+                                <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>
+                            </svg>
+                        </button>
+                    </div>
                 @empty
                     <p class="ck-history-empty">No conversations yet.</p>
                 @endforelse
