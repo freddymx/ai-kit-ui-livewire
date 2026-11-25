@@ -7,6 +7,8 @@
 
 **The Livewire chat UI for the ai-kit suite** — a drop-in `<livewire:ai-kit.chat />` component with streaming RAG answers, markdown, source citations, and conversation history. **No build step required.**
 
+> Guía de desarrollo (objetivos, stack, estructura, estado y relación con la suite): [DEVELOPMENT.md](DEVELOPMENT.md)
+
 <p align="center">
   <img src="art/chat.png" alt="ai-kit chat with citations and history" width="820">
 </p>
