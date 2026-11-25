@@ -83,6 +83,15 @@ it('dispatches a stream event instead of answering inline when streaming is on',
         ->assertCount('messages', 2);
 });
 
+it('renders the grounded chat header with the active collection and a new-chat action', function (): void {
+    Livewire::test(Chat::class, ['collection' => 'kb'])
+        ->assertSee('Knowledge assistant')
+        ->assertSee('kb · sources cited', false)
+        ->assertSee('ck-header-shell', false)
+        ->assertSee('wire:click="newConversation"', false)
+        ->assertSee('cubic-bezier(.32,.72,0,1)', false);
+});
+
 it('pins chat text to the left so host page styles cannot center the bubbles', function (): void {
     Livewire::test(Chat::class)
         ->assertSee('font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;text-align:left!important}', false)

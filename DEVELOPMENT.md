@@ -40,7 +40,7 @@ No hay **build step**: no hay que compilar JS ni CSS. Toda la lógica RAG (inges
 
 - Versión publicada: **v0.4.4** (tag presente en el repo).
 - Tests: **11 passed / 32 assertions** (`vendor/bin/pest`).
-- Capacidades implementadas: `StreamController` + ruta named `ai-kit.stream`, streaming `delta`/`done`, citations con chips y popup, historial por participante, empty state, markdown GFM con HTML escapado, dark mode (`prefers-color-scheme`) y CSS variables `--ck-*`.
+- Capacidades implementadas: `StreamController` + ruta named `ai-kit.stream`, streaming `delta`/`done`, citations con chips y popup, historial por participante, empty state, markdown GFM con HTML escapado, dark mode (`prefers-color-scheme`) y CSS variables `--ck-*`; y una **cabecera grounded** (doble bisel, identidad + colección activa, status pill y acción **New chat**).
 - Historial de fixes de alineación (commits `f5191f0`, `af09f25`, `51d562b`): se fijó `text-align:left!important` en `.ck-root` y `.ck-bubble`, y además en los **elementos markdown hijos** (`.ck-bubble p, ul, ol, li, h1–h6, blockquote, table, th, td, pre, code`). Motivo: las reglas del host sobre `p`/`li` ganaban por especificidad al valor **heredado** de `.ck-bubble`. El test `pins chat text to the left...` congela esos selectores.
 
 ## 5. Estructura del código
@@ -52,7 +52,7 @@ src/Http/StreamController.php         # SSE: valida request, emite delta/error/d
 src/Support/Markdown.php              # CommonMark -> HTML seguro (html_input => escape)
 src/AiKitUiServiceProvider.php        # loadViewsFrom, loadRoutesFrom, Livewire::component, publishes
 routes/web.php                        # GET ai-kit/stream -> ai-kit.stream
-resources/views/livewire/chat.blade.php # toda la UI: CSS inline (@once) + JS @script
+resources/views/livewire/chat.blade.php # toda la UI: CSS inline (@once) + JS @script + cabecera ck-header-shell/ck-header
 tests/Feature/ChatComponentTest.php   # render, empty state, send, citations, stream, CSS
 tests/Feature/ConversationHistoryTest.php # scoping por participante, load/new conversation
 tests/TestCase.php, tests/Pest.php    # bootstrap Testbench
@@ -61,7 +61,7 @@ tests/database/migrations/...         # tabla users
 .github/workflows/tests.yml           # release published + workflow_dispatch
 ```
 
-Detalle de `Chat.php`: props públicas `collection`, `agent`, `placeholder`, `draft`, `messages`, `conversationId`, `streaming`, `history`, `citations`. `send()` agrega el mensaje del usuario, resuelve citas (si están activas), agrega un mensaje `assistant` con `pending: true` y hace `dispatch('ai-kit:stream', ...)`; el path no-streamed llama a `ChatService::ask()` inline. `completeStream(index, content, conversationId)` cierra el ciclo del stream.
+Detalle de `Chat.php`: props públicas `collection`, `agent`, `placeholder`, `draft`, `messages`, `conversationId`, `streaming`, `history`, `citations`. `send()` agrega el mensaje del usuario, resuelve citas (si están activas), agrega un mensaje `assistant` con `pending: true` y hace `dispatch('ai-kit:stream', ...)`; el path no-streamed llama a `ChatService::ask()` inline. `completeStream(index, content, conversationId)` cierra el ciclo del stream. La cabecera no agrega props: muestra `$collection` (o el default de config) y su botón **New chat** llama a `newConversation()`, así que funciona incluso con `:history="false"`.
 
 ## 6. Configuración
 
@@ -135,6 +135,7 @@ Página Blade mínima (fuera de Filament):
 - **`text-align` en los hijos markdown**: `text-align` se hereda, pero una regla del host sobre `p`/`li` gana por especificidad. Por eso se declara `text-align:left!important` también en `p/ul/ol/li/h1-h6/blockquote/table/th/td/pre/code`.
 - **Historial y token logging requieren usuario autenticado** (el *participant*): `conversationList()` y `loadConversation()` retornan `[]`/early-return sin `auth()->user()`, y filtran por `participant_type` + `participant_id`. En una página pública el chat funciona pero no persiste nada. El listado se limita a 50 conversaciones.
 - Otro gotcha: el route name `ai-kit.stream` se resuelve con `route()` dentro de `@script`; si la app redefine el prefijo de rutas del provider, el JS sigue funcionando porque usa el name (`@js(route(...))`).
+- La cabecera agrega reglas `ck-header-*` **sin tocar las reglas pinneadas** por `ChatComponentTest` (`.ck-root` con `text-align:left!important`, `.ck-bubble`, `.ck-messages`, `.ck-msg-*`). Si se reformatean esas líneas, el test de alineación falla. Solo se animan `transform`/`opacity` con `cubic-bezier(.32,.72,0,1)`; no se usa `backdrop-blur` (el blur queda reservado para overlays) y el collapse es a `768px`, distinto del `640px` del historial.
 
 ## 10. Verificación y publicación
 

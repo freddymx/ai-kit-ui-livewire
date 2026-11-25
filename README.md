@@ -90,6 +90,7 @@ an app-wide default in `config/ai-kit.php` and override per instance:
 
 ## Features
 
+- **Grounded header** — a double-bezel header shows the assistant identity, the active collection and a quiet "Live" status pill. Its **New chat** button resets the conversation even when the history sidebar is disabled.
 - **Streaming** — token-by-token over SSE (route `ai-kit.stream`), controlled by `config('ai-kit.chat.streaming')`, with a non-streamed fallback that runs entirely inside Livewire.
 - **Citations** — every answer shows source chips (document title · chunk · relevance %). Click a chip to expand the **source passage** inline with a relevance meter.
 - **History** — with `:history="true"` and a signed-in user, a sidebar lists past conversations; click to reload, or start a **New chat**. Scoped to the current user.
@@ -130,10 +131,16 @@ The component ships compiled, scoped CSS using CSS variables — override them i
     --ck-user: #16a34a;        /* user bubble */
     --ck-radius: 12px;
     /* --ck-bg, --ck-fg, --ck-muted, --ck-border, --ck-assistant, --ck-user-fg */
+    /* header island */
+    --ck-header-tint: #f6f8fc;      /* tray, eyebrow and status pill */
+    --ck-header-text: #0b1220;     /* title */
+    --ck-header-hair: rgba(11,18,32,.07);
+    --ck-header-glow: rgba(37,99,235,.10);
+    --ck-header-status: #10b981;   /* live dot */
 }
 ```
 
-Dark mode is handled automatically via `prefers-color-scheme`.
+Dark mode is handled automatically via `prefers-color-scheme` (it overrides the `--ck-header-*` variables too). The header collapses below `768px`: it hides the subtitle and the button label and keeps only the icon. No new component props were added — the header is always rendered.
 
 ## How streaming works
 
