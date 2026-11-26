@@ -57,9 +57,19 @@
             .ck-input:focus{outline:2px solid var(--ck-accent);outline-offset:-1px}
             .ck-send{border:0;background:var(--ck-accent);color:#fff;border-radius:10px;padding:0 18px;font:inherit;font-weight:600;cursor:pointer}
             .ck-send:disabled{opacity:.5;cursor:not-allowed}
+            .ck-collection-shell{flex:0 0 auto;margin:12px 12px 0;padding:5px;border-radius:16px;background:var(--ck-assistant);box-shadow:inset 0 0 0 1px var(--ck-border)}
+            .ck-collection{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;border-radius:11px;background:var(--ck-bg)}
+            .ck-collection-label{font-size:.66rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ck-muted)}
+            .ck-collection-control{position:relative;display:flex;align-items:center;min-width:0}
+            .ck-collection-select{appearance:none;-webkit-appearance:none;max-width:220px;padding:6px 26px 6px 10px;border:0;border-radius:9px;background:var(--ck-assistant);color:var(--ck-fg);font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;text-overflow:ellipsis;transition:background .4s cubic-bezier(.32,.72,0,1),box-shadow .4s cubic-bezier(.32,.72,0,1)}
+            .ck-collection-select:hover{background:var(--ck-border)}
+            .ck-collection-select:focus-visible{outline:none;box-shadow:inset 0 0 0 1px var(--ck-accent),0 0 0 3px rgba(37,99,235,.12)}
+            .ck-collection-chevron{position:absolute;right:8px;width:12px;height:12px;color:var(--ck-muted);pointer-events:none;stroke:currentColor;stroke-width:1.5}
+            @media (max-width:640px){.ck-collection-shell{margin:8px 8px 0}.ck-collection{gap:8px;padding:7px 10px}.ck-collection-select{max-width:100%;width:52vw}}
             @media (max-width:640px){.ck-root-history{flex-direction:column}.ck-history{width:auto;flex:0 0 auto;max-height:160px}.ck-history-delete{opacity:1}}
             @media (prefers-color-scheme:dark){.ck-root{--ck-bg:#0b0f19;--ck-fg:#e5e7eb;--ck-muted:#9ca3af;--ck-border:#1f2937;--ck-assistant:#1f2937}}
             @media (prefers-reduced-motion:reduce){.ck-history-delete{transition:none!important}}
+            @media (prefers-reduced-motion:reduce){.ck-collection-select{transition:none!important}}
 
         </style>
     @endonce
@@ -95,6 +105,24 @@
     @endif
 
     <div class="ck-chat">
+        @if ($collectionSelector)
+            <div class="ck-collection-shell">
+                <div class="ck-collection">
+                    <span class="ck-collection-label">Knowledge base</span>
+                    <span class="ck-collection-control">
+                        <select class="ck-collection-select" wire:model.live="collection" aria-label="Knowledge base">
+                            @foreach ($this->collectionOptions() as $slug => $name)
+                                <option value="{{ $slug }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
+                        <svg class="ck-collection-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+        @endif
+
         <div class="ck-messages" x-data x-ref="messages"
              x-init="$nextTick(() => $el.scrollTop = $el.scrollHeight)"
              @ck-scroll.window="$nextTick(() => $refs.messages.scrollTop = $refs.messages.scrollHeight)">

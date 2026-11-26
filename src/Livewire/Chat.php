@@ -27,6 +27,9 @@ final class Chat extends Component
 {
     public ?string $collection = null;
 
+    /** Show a knowledge-base picker inside the chat (resets the chat on change). */
+    public bool $collectionSelector = false;
+
     /** Optional agent class-string override (must extend RagAgent). */
     public ?string $agent = null;
 
@@ -54,6 +57,7 @@ final class Chat extends Component
         ?bool $history = null,
         ?bool $citations = null,
         ?bool $streaming = null,
+        ?bool $collectionSelector = null,
     ): void {
         // Each prop falls back to an app-wide config default when not passed.
         $this->collection = $collection ?? config('ai-kit.default_collection', 'default');
@@ -62,6 +66,31 @@ final class Chat extends Component
         $this->streaming = $streaming ?? (bool) config('ai-kit.chat.streaming', true);
         $this->history = $history ?? (bool) config('ai-kit.ui.history', false);
         $this->citations = $citations ?? (bool) config('ai-kit.ui.citations', true);
+        $this->collectionSelector = $collectionSelector ?? (bool) config('ai-kit.ui.collection_selector', false);
+    }
+
+    /**
+     * Available knowledge bases for the selector: slug => name, alphabetized.
+     *
+     * @return array<string, string>
+     */
+    public function collectionOptions(): array
+    {
+        /** @var array<string, string> $options */
+        $options = Collection::query()->orderBy('name')->pluck('name', 'slug')->all();
+
+        return $options;
+    }
+
+    /**
+     * Livewire hook for wire:model.live on $collection. Switching knowledge
+     * bases invalidates the current conversation, so start fresh.
+     */
+    public function updatedCollection(): void
+    {
+        if ($this->collectionSelector) {
+            $this->newConversation();
+        }
     }
 
     /**

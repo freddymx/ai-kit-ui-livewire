@@ -61,7 +61,7 @@ tests/database/migrations/...         # tabla users
 .github/workflows/tests.yml           # release published + workflow_dispatch
 ```
 
-Detalle de `Chat.php`: props públicas `collection`, `agent`, `placeholder`, `draft`, `messages`, `conversationId`, `streaming`, `history`, `citations`. `send()` agrega el mensaje del usuario, resuelve citas (si están activas), agrega un mensaje `assistant` con `pending: true` y hace `dispatch('ai-kit:stream', ...)`; el path no-streamed llama a `ChatService::ask()` inline. `completeStream(index, content, conversationId)` cierra el ciclo del stream. La cabecera no agrega props: muestra `$collection` (o el default de config) y su botón **New chat** llama a `newConversation()`, así que funciona incluso con `:history="false"`.
+Detalle de `Chat.php`: props públicas `collection`, `agent`, `placeholder`, `draft`, `messages`, `conversationId`, `streaming`, `history`, `citations`, `collectionSelector`. `collectionOptions()` devuelve las bases sembradas como `slug => name` (ordenadas por nombre) para el dropdown; el hook `updatedCollection()` (disparado por `wire:model.live="collection"`) llama a `newConversation()` **solo** cuando `collectionSelector` está activo. `send()` agrega el mensaje del usuario, resuelve citas (si están activas), agrega un mensaje `assistant` con `pending: true` y hace `dispatch('ai-kit:stream', ...)`; el path no-streamed llama a `ChatService::ask()` inline. `completeStream(index, content, conversationId)` cierra el ciclo del stream. La cabecera no agrega props: muestra `$collection` (o el default de config) y su botón **New chat** llama a `newConversation()`, así que funciona incluso con `:history="false"`.
 
 El historial expone además `deleteConversation(string $id)`: hace early-return sin `history` o sin `auth()->user()`, y delega el borrado real al servicio del core `SolutionForest\AiKit\Services\ConversationService::deleteForParticipant($id, $user)`, que verifica propiedad por `participant_type` + `participant_id` y borra la conversación junto con sus mensajes (observer `deleting` registrado por `AiKitServiceProvider`). Si el id borrado era el activo (`conversationId`), llama a `newConversation()` para limpiar `messages`, `conversationId` y `draft`. La UI usa un `<div class="ck-history-row">` con el botón de carga y un botón de borrar separado (no se anidan botones): `wire:confirm` pide la confirmación y `wire:click.stop` evita que el click dispare también `loadConversation`. No hay acción de "borrar todo": el alcance es por conversación.
 
@@ -77,7 +77,9 @@ Los defaults **no viven en este package**: están en `config/ai-kit.php` de **co
 | `history` | `config('ai-kit.ui.history', false)` | core (`AI_KIT_UI_HISTORY`) |
 | `citations` | `config('ai-kit.ui.citations', true)` | core (`AI_KIT_UI_CITATIONS`) |
 | `streaming` | `config('ai-kit.chat.streaming', true)` | core (`AI_KIT_STREAMING`) |
+| `collectionSelector` | `config('ai-kit.ui.collection_selector', false)` | core (`AI_KIT_UI_COLLECTION_SELECTOR`) |
 
+- `collectionSelector` es **opt-in**: oculto (default), la base queda fija con la prop `collection` y un cambio programático no toca el estado del chat; visible, el usuario elige entre las collections existentes y cada cambio dispara `updatedCollection()` → `newConversation()` (limpia `messages`, `conversationId` y `draft`).
 - Ruta: `GET /ai-kit/stream`, name `ai-kit.stream`; middleware `config('ai-kit.ui.stream_middleware')`, default `['web']`.
 - CSS variables en `.ck-root`: `--ck-bg`, `--ck-fg`, `--ck-muted`, `--ck-border`, `--ck-user`, `--ck-user-fg`, `--ck-assistant`, `--ck-accent`, `--ck-radius`. Se override desde la stylesheet de la app (ver README).
 - **La configuración de provider/modelo NO está acá**: se hace en core (`.env` con `AI_KIT_LOCAL_*` para Ollama / LM Studio / vLLM / llama.cpp) o desde la página **AI Settings** de Filament. El componente toma el provider activo automáticamente.
@@ -112,6 +114,13 @@ php artisan vendor:publish --tag=ai-kit-ui-views
 4. Al terminar emite `event: done` con `{"content": ..., "conversationId": ...}`. El JS cierra el `EventSource` y llama a `$wire.completeStream(index, content || buffer, conversationId)`. En error emite `event: error` y cierra.
 5. Si `streaming` es `false`, no hay SSE: `ChatService::ask()` responde inline dentro de Livewire.
 
+**Cómo funciona el selector de knowledge base** (prop `collectionSelector`, default `false`):
+
+1. Con el selector oculto no se renderiza ningún control: la base sigue siendo la que indique la prop `collection` (o el default de core). Es el comportamiento de siempre y un `set('collection', ...)` programático **no** resetea nada.
+2. Con `:collection-selector="true"` (o `AI_KIT_UI_COLLECTION_SELECTOR=true`), `collectionOptions()` consulta `Collection` ordenado por `name` y devuelve `slug => name`; el `<select>` usa `wire:model.live="collection"`.
+3. El cambio dispara el lifecycle hook `updatedCollection()`, que llama a `newConversation()` para limpiar `messages`, `conversationId` y `draft`. Así una respuesta nunca mezcla fuentes de dos bases distintas.
+4. El markup se inserta dentro de `.ck-chat`, antes de `.ck-messages`, y usa los mismos estilos `ck-*`: `ck-collection-shell` / `ck-collection` / `ck-collection-label` / `ck-collection-control` / `ck-collection-select` / `ck-collection-chevron`. Hairlines con `box-shadow:inset`, radius generoso, SVG inline (chevron) y transición `cubic-bezier(.32,.72,0,1)`; en mobile (`max-width:640px`) el select pasa a `width:52vw` y con `prefers-reduced-motion:reduce` se desactiva la transición.
+
 **Cómo funciona el borrado del historial** (acción por conversación, no "clear all"):
 
 1. Cada item del sidebar es un `.ck-history-row` con dos botones hermanos: el `.ck-history-item` existente (`wire:click="loadConversation(...)"`) y el `.ck-history-delete`, que no está anidado para evitar un botón dentro de otro.
@@ -139,7 +148,8 @@ Página Blade mínima (fuera de Filament):
 
 ## 9. Decisiones de diseño y gotchas
 
-- **CSS inline + scoped**: todo el estilo vive en `chat.blade.php` con `@once` y prefijo `ck-`. Así no hay dependencias de Tailwind, ni build step, ni colisiones con el CSS del host (los tests verifican los selectores exactos).
+- **CSS inline + scoped**: todo el estilo vive en `chat.blade.php` con `@once` y prefijo `ck-`. Así no hay dependencias de Tailwind, ni build step, ni colisiones con el CSS del host (los tests verifican los selectores exactos). El selector suma sus propias reglas `ck-collection-*` con el mismo lenguaje visual (bisel `inset`, radius 16/11/9px, sin bordes grises ni sombras duras). Ojo: `@once` hace que el `<style>` se renderice siempre, incluso con el selector oculto — los tests de ocultamiento chequean `class="ck-collection-shell"` (markup) y no el nombre de la clase en el CSS.
+- **Hook condicional**: `updatedCollection()` resetea el chat **solo si** `collectionSelector` es `true`. Sin el selector, el mutate de `collection` es inocuo (compatibilidad hacia atrás); con él, cambiar de base descarta mensajes, id de conversación y borrador. El foco está en `:focus-visible` con `box-shadow` (no `outline`) y el color de glow es un rgba literal, porque la variable `--ck-header-glow` desapareció con la cabecera.
 - **Vistas publicadas**: `vendor:publish` copia los archivos a `resources/views/vendor/ai-kit-ui`. Composer **no las actualiza** en un upgrade porque son archivos del usuario. Para tomar cambios del package hay que republicar con `php artisan vendor:publish --tag=ai-kit-ui-views --force` (y revisar diffs propios).
 - **`text-align` en los hijos markdown**: `text-align` se hereda, pero una regla del host sobre `p`/`li` gana por especificidad. Por eso se declara `text-align:left!important` también en `p/ul/ol/li/h1-h6/blockquote/table/th/td/pre/code`.
 - **Historial y token logging requieren usuario autenticado** (el *participant*): `conversationList()`, `loadConversation()` y `deleteConversation()` retornan `[]`/early-return sin `auth()->user()`, y filtran por `participant_type` + `participant_id`. En una página pública el chat funciona pero no persiste nada. El listado se limita a 50 conversaciones.

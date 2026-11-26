@@ -72,12 +72,24 @@ Drop it into any Blade view:
 | `history` | `bool` | `config('ai-kit.ui.history')` (`false`) | Show the conversation-history sidebar (needs an authenticated user) |
 | `citations` | `bool` | `config('ai-kit.ui.citations')` (`true`) | Show source citation chips + popups (set `false` to hide, and skip retrieval for them) |
 | `streaming` | `bool` | `config('ai-kit.chat.streaming')` (`true`) | Stream the answer token-by-token over SSE (else non-streamed) |
+| `collectionSelector` | `bool` | `config('ai-kit.ui.collection_selector')` (`false`) | Show a knowledge-base picker inside the chat (list of seeded collections). When visible, changing the base resets messages, conversation id and draft; when hidden, the `collection` prop stays fixed |
 
 Every boolean prop falls back to its config default when omitted, so you can set
-an app-wide default in `config/ai-kit.php` and override per instance:
+an app-wide default in `config/ai-kit.php` and override per instance. For the
+selector, core's default is driven by `AI_KIT_UI_COLLECTION_SELECTOR=false`; set
+it to `true` to enable the picker on every chat instance, or pass
+`:collection-selector="true"` (or `false`) on a single tag to override it:
 
 ```blade
 <livewire:ai-kit.chat collection="handbook" :citations="false" :streaming="false" />
+```
+
+With the selector visible, users pick the base from a dropdown at the top of
+the chat. Switching bases starts a fresh conversation, so answers never mix
+sources from two knowledge bases:
+
+```blade
+<livewire:ai-kit.chat :collection-selector="true" />
 ```
 
 ```blade
@@ -93,6 +105,7 @@ an app-wide default in `config/ai-kit.php` and override per instance:
 - **Streaming** — token-by-token over SSE (route `ai-kit.stream`), controlled by `config('ai-kit.chat.streaming')`, with a non-streamed fallback that runs entirely inside Livewire.
 - **Citations** — every answer shows source chips (document title · chunk · relevance %). Click a chip to expand the **source passage** inline with a relevance meter.
 - **History** — with `:history="true"` and a signed-in user, a sidebar lists past conversations; click to reload, or start a **New chat**. Scoped to the current user. Each conversation also has a delete action behind a confirmation prompt: it removes that conversation **and its messages**, and only applies to the authenticated participant (someone else's conversation is never deleted).
+- **Collection selector** — opt in with `:collection-selector="true"` (or globally via `AI_KIT_UI_COLLECTION_SELECTOR`) to let users switch knowledge bases; changing the base resets the chat. Hidden by default, so the `collection` prop stays fixed and existing embeds are unaffected.
 - **Empty state** — when the collection is missing or has no embedded content, the component prompts you to create a knowledge base first.
 - **Markdown** — assistant responses render GitHub-flavored markdown (HTML escaped).
 
